@@ -1,0 +1,14 @@
+{
+  "enabled": true,
+  "name": "Run the model tests when the domain changes",
+  "version": "1",
+  "description": "the haunt ladder lives in src/lib; touching it must not ship without a green suite.",
+  "when": {
+    "type": "fileEdited",
+    "patterns": ["src/lib/**/*.ts"]
+  },
+  "then": {
+    "type": "runCommand",
+    "command": "pnpm exec vitest run"
+  }
+}

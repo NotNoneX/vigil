@@ -1,0 +1,14 @@
+{
+  "enabled": true,
+  "name": "Typecheck before every build",
+  "version": "1",
+  "description": "Runs the strict TypeScript check whenever a build is requested, so type regressions surface before the bundle does.",
+  "when": {
+    "type": "preToolUse",
+    "toolTypes": ["shell"]
+  },
+  "then": {
+    "type": "runCommand",
+    "command": "pnpm exec tsc --noEmit"
+  }
+}

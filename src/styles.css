@@ -1,0 +1,436 @@
+/* Vigil —— 全部视觉围绕一根蜡烛：房间越暗、幽灵越近，注意力就越贵。 */
+
+:root {
+  --ink: #07060b;
+  --ink-2: #100e17;
+  --bone: #e8e2d6;
+  --bone-dim: #9b948a;
+  --flame: #ffb257;
+  --flame-hot: #fff3d6;
+  --blood: #b8422f;
+  --ghost: #9fd7e8;
+
+  /* 由 JS 在运行时按怨气值覆盖 */
+  --dread: 0;
+  --lamp: 1;
+
+  color-scheme: dark;
+  font-family: 'Iowan Old Style', 'Palatino Linotype', Palatino, Georgia, serif;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  background: var(--ink);
+  color: var(--bone);
+  overflow-x: hidden;
+}
+
+/* ---------- 房间与雾气 ---------- */
+
+.room {
+  position: relative;
+  min-height: 100%;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  isolation: isolate;
+  overflow: hidden;
+}
+
+/* 烛光。亮度随 --lamp 收缩。 */
+.room::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background:
+    radial-gradient(
+      circle at 50% 42%,
+      rgb(255 178 87 / calc(0.22 * var(--lamp))) 0%,
+      rgb(120 60 20 / calc(0.12 * var(--lamp))) 22%,
+      transparent 58%
+    ),
+    radial-gradient(circle at 50% 130%, #1a1016 0%, transparent 60%);
+  transition: background 1.4s ease;
+}
+
+/* 雾气。怨气越高压得越低、动得越快。 */
+.fog {
+  position: absolute;
+  inset: -20%;
+  z-index: -2;
+  pointer-events: none;
+  background-image:
+    radial-gradient(ellipse 40% 20% at 20% 70%, rgb(159 215 232 / 0.09), transparent 70%),
+    radial-gradient(ellipse 35% 18% at 75% 80%, rgb(159 215 232 / 0.07), transparent 70%),
+    radial-gradient(ellipse 50% 22% at 45% 92%, rgb(159 215 232 / 0.06), transparent 70%);
+  filter: blur(6px);
+  opacity: calc(0.35 + var(--dread) * 0.0065);
+  animation: drift calc(58s - var(--dread) * 0.3s) linear infinite;
+}
+
+@keyframes drift {
+  from {
+    transform: translate3d(-4%, 1%, 0) scale(1.05);
+  }
+  50% {
+    transform: translate3d(4%, -1%, 0) scale(1.12);
+  }
+  to {
+    transform: translate3d(-4%, 1%, 0) scale(1.05);
+  }
+}
+
+/* ---------- 页眉 ---------- */
+
+.masthead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.6rem 2rem;
+  font-size: 0.78rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--bone-dim);
+}
+
+.masthead strong {
+  color: var(--bone);
+  font-weight: 400;
+  letter-spacing: 0.42em;
+}
+
+/* ---------- 中央 ---------- */
+
+.stage {
+  display: grid;
+  place-items: center;
+  padding: 1rem 2rem 3rem;
+}
+
+.panel {
+  width: min(34rem, 100%);
+  text-align: center;
+}
+
+.intention {
+  margin: 0 0 2.6rem;
+  font-size: clamp(1.15rem, 2.6vw, 1.6rem);
+  font-style: italic;
+  color: var(--bone-dim);
+  min-height: 1.6em;
+  text-wrap: balance;
+}
+
+.clock {
+  font-variant-numeric: tabular-nums;
+  font-size: clamp(4.4rem, 19vw, 9rem);
+  line-height: 0.9;
+  letter-spacing: -0.03em;
+  color: var(--flame-hot);
+  text-shadow:
+    0 0 calc(28px * var(--lamp)) rgb(255 178 87 / 0.42),
+    0 0 calc(76px * var(--lamp)) rgb(255 120 40 / 0.18);
+  transition:
+    color 1s ease,
+    text-shadow 1.4s ease;
+}
+
+.clock.is-paused {
+  color: var(--bone-dim);
+  text-shadow: none;
+}
+
+/* 烛台 */
+.track {
+  margin: 1.6rem auto 2.4rem;
+  width: min(22rem, 78%);
+  height: 2px;
+  background: rgb(232 226 214 / 0.12);
+  position: relative;
+}
+
+.track-fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  background: linear-gradient(90deg, var(--blood), var(--flame));
+  box-shadow: 0 0 14px rgb(255 178 87 / 0.5);
+  transition: width 0.9s linear;
+}
+
+/* ---------- 幽灵 ---------- */
+
+.haunt {
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  gap: clamp(0.5rem, 2.5vw, 1.1rem);
+  height: 8.6rem;
+  margin-bottom: 1rem;
+}
+
+.ghost {
+  width: clamp(2.1rem, 6.5vw, 2.9rem);
+  fill: var(--ghost);
+  transform: translateY(0.6rem) scale(0.72);
+  opacity: 0.14;
+  filter: blur(0.6px);
+  transition:
+    transform 0.9s cubic-bezier(0.2, 0.8, 0.3, 1),
+    opacity 0.9s ease,
+    filter 0.9s ease;
+}
+
+.ghost.is-near {
+  transform: translateY(0) scale(1);
+  opacity: 0.9;
+  filter: blur(0);
+  animation: hover 5.2s ease-in-out infinite;
+}
+
+.ghost.is-last.is-near {
+  fill: var(--blood);
+  animation-duration: 2.6s;
+}
+
+@keyframes hover {
+  0%,
+  100% {
+    translate: 0 0;
+  }
+  50% {
+    translate: 0 -0.5rem;
+  }
+}
+
+/* ---------- 读数 ---------- */
+
+.readout {
+  display: flex;
+  justify-content: center;
+  gap: 2.4rem;
+  margin: 0 0 2.6rem;
+  font-size: 0.74rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--bone-dim);
+}
+
+.readout b {
+  display: block;
+  margin-top: 0.42rem;
+  font-size: 1.28rem;
+  font-weight: 400;
+  letter-spacing: 0.04em;
+  color: var(--bone);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- 按键 ---------- */
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.8rem;
+}
+
+button {
+  font: inherit;
+  cursor: pointer;
+  border-radius: 2px;
+  transition:
+    background 0.25s ease,
+    border-color 0.25s ease,
+    color 0.25s ease;
+}
+
+button:focus-visible {
+  outline: 2px solid var(--flame);
+  outline-offset: 3px;
+}
+
+.btn {
+  padding: 0.82rem 1.6rem;
+  font-size: 0.82rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  border: 1px solid rgb(232 226 214 / 0.24);
+  background: transparent;
+  color: var(--bone);
+}
+
+.btn:hover {
+  border-color: var(--bone);
+  background: rgb(232 226 214 / 0.06);
+}
+
+.btn-primary {
+  border-color: var(--flame);
+  color: var(--flame-hot);
+  background: rgb(255 178 87 / 0.09);
+}
+
+.btn-primary:hover {
+  background: rgb(255 178 87 / 0.18);
+}
+
+.btn-quiet {
+  border-color: transparent;
+  color: var(--bone-dim);
+}
+
+.btn-quiet:hover {
+  color: var(--bone);
+  background: transparent;
+  border-color: transparent;
+}
+
+/* ---------- 起始与结算 ---------- */
+
+.choose {
+  display: grid;
+  gap: 0.7rem;
+  margin: 0 auto 1.8rem;
+  width: min(22rem, 100%);
+}
+
+.chip {
+  padding: 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  border: 1px solid rgb(232 226 214 / 0.18);
+  background: transparent;
+  color: var(--bone);
+  font-size: 0.92rem;
+  letter-spacing: 0.1em;
+}
+
+.chip:hover,
+.chip[aria-pressed='true'] {
+  border-color: var(--flame);
+  background: rgb(255 178 87 / 0.08);
+}
+
+.chip span:last-child {
+  font-size: 0.74rem;
+  color: var(--bone-dim);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.field {
+  display: grid;
+  gap: 0.5rem;
+  text-align: left;
+  width: min(22rem, 100%);
+  margin: 0 auto 1.8rem;
+}
+
+.field label {
+  font-size: 0.72rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--bone-dim);
+}
+
+.field input {
+  font: inherit;
+  padding: 0.8rem 0.9rem;
+  color: var(--bone);
+  background: rgb(232 226 214 / 0.04);
+  border: 1px solid rgb(232 226 214 / 0.18);
+  border-radius: 2px;
+}
+
+.field input:focus {
+  outline: none;
+  border-color: var(--flame);
+}
+
+.verdict-title {
+  margin: 0 0 0.9rem;
+  font-size: clamp(1.6rem, 5vw, 2.4rem);
+  font-weight: 400;
+  letter-spacing: 0.06em;
+}
+
+.verdict-line {
+  margin: 0 0 2.6rem;
+  color: var(--bone-dim);
+  font-style: italic;
+  max-width: 26rem;
+  margin-inline: auto;
+  text-wrap: balance;
+}
+
+/* 横轴回顾 */
+.marks {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 2px;
+  height: 3.4rem;
+  margin: 0 auto 2.2rem;
+  width: min(22rem, 100%);
+}
+
+.mark {
+  flex: 1;
+  background: rgb(159 215 232 / 0.24);
+  border-radius: 1px 1px 0 0;
+  min-height: 3px;
+}
+
+.mark.is-hit {
+  background: var(--blood);
+}
+
+/* ---------- 页脚 ---------- */
+
+.footer {
+  padding: 1.2rem 2rem 1.8rem;
+  text-align: center;
+  font-size: 0.7rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgb(155 148 138 / 0.6);
+}
+
+/* ---------- 尊重减弱动画 ---------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .fog,
+  .ghost.is-near {
+    animation: none;
+  }
+  .track-fill,
+  .ghost {
+    transition-duration: 0.2s;
+  }
+}
+
+@media (max-width: 34rem) {
+  .masthead {
+    padding: 1.2rem 1.2rem;
+  }
+  .stage {
+    padding: 1rem 1.2rem 2rem;
+  }
+  .readout {
+    gap: 1.6rem;
+  }
+}

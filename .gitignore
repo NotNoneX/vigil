@@ -1,0 +1,12 @@
+# 依赖
+node_modules/
+
+# 构建产物
+dist/
+
+# 本地文件
+*.local
+.DS_Store
+.vite/
+
+# 注意：.kiro/ 不进这里 —— 评委要看

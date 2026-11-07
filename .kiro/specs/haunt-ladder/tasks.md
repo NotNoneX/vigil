@@ -1,0 +1,22 @@
+# Tasks — the haunt ladder
+
+- [x] 1. `SessionState` with `haunt`, `distractions`, `status`
+- [x] 2. `createSession` / `tick` / `pause` / `resume` / `abandon` as pure transitions
+- [x] 3. `hauntThreshold` with 45s floor and length scaling
+  - [x] 3.1 test: threshold grows with session length
+  - [x] 3.2 test: threshold never drops under 45s
+- [x] 4. `visit` — record, then advance at most one step
+  - [x] 4.1 test: short gap advances
+  - [x] 4.2 test: long gap holds
+  - [x] 4.3 test: clamps at `MAX_HAUNT`
+  - [x] 4.4 test: visits still append after the clamp
+  - [x] 4.5 test: no-op while paused
+- [x] 5. `dread` derivation
+  - [x] 5.1 test: zero when clean
+  - [x] 5.2 test: capped at 100
+  - [x] 5.3 test: monotonic
+- [x] 6. `verdict` bands by visit count
+- [x] 7. Render four ghosts from `haunt`; last one turns blood-red when near
+- [x] 8. Bind `--dread` / `--lamp` on `:root`
+- [x] 9. `prefers-reduced-motion` keeps state changes, drops ambient animation
+- [ ] 10. Sound cue on a new visit (optional, deferred)
