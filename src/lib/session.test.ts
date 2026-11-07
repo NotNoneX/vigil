@@ -7,6 +7,7 @@ import {
   dread,
   formatClock,
   hauntThreshold,
+  longestStretch,
   pause,
   progress,
   remainingSeconds,
@@ -144,5 +145,39 @@ describe('展示', () => {
     for (let i = 0; i < 1600; i++) s = tick(s, 1);
     expect(verdict(s).title).toBe('Unmoved');
     expect(verdict(abandon(base())).title).toBe('You blew it out');
+  });
+});
+
+describe('最长连续专注段', () => {
+  it('无分心时返回已过秒数', () => {
+    let s = base();
+    s = tick(s, 600);
+    expect(longestStretch(s)).toBe(600);
+  });
+
+  it('单次分心的情况', () => {
+    let s = base();
+    s = tick(s, 300);
+    s = visit(s);
+    s = tick(s, 200);
+    expect(longestStretch(s)).toBe(300);
+  });
+
+  it('多次分心取最大值', () => {
+    let s = base();
+    s = tick(s, 200); // [0, 200]
+    s = visit(s);
+    s = tick(s, 150); // [0, 200, 350]
+    s = visit(s);
+    s = tick(s, 100); // [0, 200, 350, 450]
+    expect(longestStretch(s)).toBe(200); // gaps: 200, 150, 100
+  });
+
+  it('最后一次分心紧贴结束', () => {
+    let s = base();
+    s = tick(s, 100);
+    s = visit(s);
+    s = tick(s, 1400); // elapsed = 1500
+    expect(longestStretch(s)).toBe(1400); // gaps: 100, 1400
   });
 });

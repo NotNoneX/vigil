@@ -7,6 +7,7 @@ import {
   createSession,
   dread,
   formatClock,
+  longestStretch,
   pause,
   progress,
   remainingSeconds,
@@ -237,6 +238,10 @@ function Ending({ session, onAgain }: { session: SessionState; onAgain: () => vo
         <div>
           Visits
           <b>{session.distractions.length}</b>
+        </div>
+        <div>
+          Longest hold
+          <b>{formatClock(longestStretch(session))}</b>
         </div>
         <div>
           Dread

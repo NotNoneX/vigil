@@ -113,6 +113,17 @@ export function formatClock(totalSeconds: number): string {
   return `${String(m).padStart(2, '0')}:${String(sec).padStart(2, '0')}`;
 }
 
+/** 最长连续专注段（秒）：间隔最大的两个时间点之差的最大值。 */
+export function longestStretch(s: SessionState): number {
+  const points = [0, ...s.distractions, s.elapsedSeconds];
+  let max = 0;
+  for (let i = 1; i < points.length; i++) {
+    const gap = points[i] - points[i - 1];
+    max = Math.max(max, gap);
+  }
+  return Math.max(0, Math.floor(max));
+}
+
 /** 结束语：按分心次数分档，语气逐级失控。 */
 export function verdict(s: SessionState): { title: string; line: string } {
   if (s.status === 'abandoned') {
