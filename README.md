@@ -3,7 +3,7 @@
 A focus timer for the small hours. Every time you drift, a ghost steps closer to
 your candle and the room gets darker.
 
-**[Live demo →](https://REPLACE-ME.vercel.app)**
+**[Live demo →](https://notnonex.github.io/vigil/)**
 
 > Started on 30 October 2026 for [Kiroween 2026](https://kiroween.devpost.com/) —
 > **Costume Contest** category.
